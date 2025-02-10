@@ -10,7 +10,7 @@ const BillingPage = () => {
     const { data: credits } = api.project.getMyCredits.useQuery()
     const [creditsToBuy, setCreditsToBuy] = React.useState<number[]>([100])
     const creditsToBuyAmount = creditsToBuy[0]!;
-    const price = (creditsToBuyAmount / 50) * 100;
+    const price = (creditsToBuyAmount / 50) * 10;
     return (
         <div>
             <h1 className="text-xl font-semibold">

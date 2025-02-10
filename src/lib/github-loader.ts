@@ -2,6 +2,16 @@ import { GithubRepoLoader } from "@langchain/community/document_loaders/web/gith
 import { generateEmbedding, summarizeCode } from "./gemini"
 import { Document } from "@langchain/core/documents"
 import { db } from "@/server/db"
+import { Octokit } from "octokit"
+
+const getFileCount = async (path: string)
+
+export const checkCredits = async (githubUrl: string,githubToken?: string) =>{
+    const octokit= new Octokit({auth: githubToken})
+    const githubOwner = githubUrl.split('/')[3]
+    const githubRepo = githubUrl.split('/')[4]
+    if(!githubOwner || !githubRepo) return 0
+}
 
 export const loadGithubRepos = async (githubUrl: string, githubToken?: string) => {
     const loader = new GithubRepoLoader(githubUrl, {
