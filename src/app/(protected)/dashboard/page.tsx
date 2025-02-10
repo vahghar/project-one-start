@@ -4,45 +4,63 @@ import { useUser } from '@clerk/nextjs'
 import { Github } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
+import CommitLog from './commit-log'
+import AskQuestionCard from './ask-question-card'
+import MeetingCard from './meeting-card'
+import { Card } from '@/components/ui/card'
+import ArchiveButton from './archive-button'
+import InviteButton from './invite-button'
+import TeamMembers from './team-members'
 
 const DashboardPage = () => {
   const { user } = useUser()
   const { project } = useProject()
+  
   return (
-    <div>
-      <div className='flex items-center justify-between flex-wrap gap-y-4'>
-
-        {/*github link*/}
-        <div className='w-fit rounded-md bg-primary px-4 py-4'>
-          <div className="flex items-center">
-            <Github className='size-5 text-white' />
-            <div className='ml-2'>
-              <p className='text-sm font-mediu text-white'>This project is linked to:  {' '}<Link href={project?.githubUrl ?? ""} className='inline-flex items-center text-white/80 hover:undelined'>{project?.githubUrl}</Link></p>
+    <div className="p-6 space-y-6">
+      <div className='flex items-center justify-between flex-wrap gap-4'>
+        {/* Github link */}
+        <Card className="bg-primary text-primary-foreground p-4">
+          <div className="flex items-center gap-3">
+            <Github className="size-5" />
+            <div>
+              <p className="text-sm">
+                This project is linked to:{' '}
+                <Link 
+                  href={project?.githubUrl ?? ""} 
+                  className="text-primary-foreground/80 hover:text-primary-foreground transition-colors"
+                >
+                  {project?.githubUrl}
+                </Link>
+              </p>
             </div>
           </div>
-        </div>
+        </Card>
 
-        <div className='h-4'></div>
+        <div className="h-4"></div>
 
-        <div className='flex items-center gap-4'>
-          
+        <div className="flex items-center gap-4">
+          <TeamMembers/>
+          <InviteButton/>
+          <ArchiveButton/>
         </div>
 
 
 
       </div>
 
-      <div className='mt-4'>
-        <div className='grid grid-cols-1 gap-4 sm:grid-cols-5'>
-          askQuestion
-          MeetingCard
+      <div className="grid grid-cols-1 md:grid-cols-5 gap-6">
+        {/* Side Cards */}
+        <div className="md:col-span-2 space-y-6">
+          <AskQuestionCard />
+          <MeetingCard />
         </div>
-      </div>
 
-      <div className="mt-8">
-        commits log
+        {/* Commit Log */}
+        <Card className="md:col-span-3 p-6">
+          <CommitLog />
+        </Card>
       </div>
-
     </div>
   )
 }
