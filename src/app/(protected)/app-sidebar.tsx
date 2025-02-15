@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Sidebar, SidebarContent, SidebarGroup, SidebarGroupContent, SidebarGroupLabel, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar'
 import useProject from '@/hooks/use-project'
 import { cn } from '@/lib/utils'
-import { Bot, CreditCard, LayoutDashboard, Plus, Presentation } from 'lucide-react'
-import Image from 'next/image'
+import { Bot, CreditCard, LayoutDashboard, Plus, Presentation, GitCommit } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
@@ -39,20 +38,26 @@ const AppSidebar = () => {
     const {projects, projectId, setProjectId} = useProject()
     
     return (
-        <Sidebar collapsible='icon' variant='floating' className="border-r border-border/10 bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <SidebarHeader className="px-6 py-4">
+        <Sidebar 
+            collapsible='icon' 
+            variant='floating'
+            className="backdrop-blur-sm"
+        >
+            <SidebarHeader className="px-6 py-4 ">
                 <div className='flex items-center gap-3'>
-                    <Image src='/github.png' alt='logo' width={32} height={32} className="rounded-lg" />
+                    <div className="bg-gradient-to-br from-purple-500 to-purple-600 p-2 rounded-xl shadow-lg shadow-purple-500/20">
+                        <GitCommit className="w-5 h-5 text-white" />
+                    </div>
                     {open && (
-                        <h1 className='text-xl font-semibold tracking-tight text-primary'>
-                            gutter
+                        <h1 className='text-xl font-semibold tracking-tight bg-gradient-to-r from-purple-400 to-purple-600 text-transparent bg-clip-text'>
+                            CommitSense
                         </h1>
                     )}  
                 </div>
             </SidebarHeader>
             <SidebarContent className="px-4">
                 <SidebarGroup>
-                    <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-2">
+                    <SidebarGroupLabel className="text-xs font-medium text-purple-300/70 px-2 uppercase tracking-wider">
                         Application
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
@@ -63,15 +68,20 @@ const AppSidebar = () => {
                                         <Link 
                                             href={item.url} 
                                             className={cn(
-                                                'flex items-center gap-3 px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-accent hover:text-accent-foreground', 
+                                                'flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group', 
                                                 { 
-                                                    'bg-primary text-primary-foreground hover:bg-primary/90': pathname === item.url,
-                                                    'text-muted-foreground': pathname !== item.url
-                                                }, 
-                                                'list-none'
+                                                    'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-500/20': pathname === item.url,
+                                                    'text-gray-400 hover:text-white hover:bg-purple-500/10': pathname !== item.url
+                                                }
                                             )}
                                         >
-                                            <item.icon className="w-4 h-4" />
+                                            <item.icon className={cn(
+                                                "w-4 h-4 transition-transform group-hover:scale-110",
+                                                {
+                                                    "text-white": pathname === item.url,
+                                                    "text-purple-400 group-hover:text-purple-300": pathname !== item.url
+                                                }
+                                            )} />
                                             <span className="font-medium">{item.title}</span>
                                         </Link>
                                     </SidebarMenuButton>
@@ -81,8 +91,8 @@ const AppSidebar = () => {
                     </SidebarGroupContent>
                 </SidebarGroup>
 
-                <SidebarGroup className="mt-6">
-                    <SidebarGroupLabel className="text-xs font-medium text-muted-foreground px-2">
+                <SidebarGroup className="mt-8">
+                    <SidebarGroupLabel className="text-xs font-medium text-purple-300/70 px-2 uppercase tracking-wider">
                         Your Projects
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
@@ -92,18 +102,19 @@ const AppSidebar = () => {
                                     <SidebarMenuButton asChild>
                                         <div 
                                             className={cn(
-                                                'flex items-center gap-3 px-3 py-2 rounded-lg cursor-pointer transition-colors duration-200 hover:bg-accent hover:text-accent-foreground',
+                                                'flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-all duration-200 group',
                                                 {
-                                                    'text-muted-foreground': project.id !== projectId
+                                                    'bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-lg shadow-purple-500/20': project.id === projectId,
+                                                    'text-gray-400 hover:text-white hover:bg-purple-500/10': project.id !== projectId
                                                 }
                                             )}
                                             onClick={() => setProjectId(project.id)}
                                         >
                                             <div className={cn(
-                                                'flex items-center justify-center w-8 h-8 rounded-lg border text-sm font-medium transition-colors duration-200',
+                                                'flex items-center justify-center w-8 h-8 rounded-lg transition-all duration-200 group-hover:scale-105',
                                                 {
-                                                    'bg-primary text-primary-foreground border-primary': project.id === projectId,
-                                                    'bg-muted text-muted-foreground border-border/50': project.id !== projectId
+                                                    'bg-white/10 backdrop-blur-sm text-white': project.id === projectId,
+                                                    'bg-purple-500/10 text-purple-400': project.id !== projectId
                                                 }
                                             )}>
                                                 {project.name[0]?.toUpperCase()}
@@ -114,12 +125,12 @@ const AppSidebar = () => {
                                 </SidebarMenuItem>
                             ))}
                             {open && (
-                                <SidebarMenuItem className="mt-2 px-2">
-                                    <Link href='/create'>
+                                <SidebarMenuItem className="mt-3 px-2">
+                                    <Link href='/create' className="w-full">
                                         <Button 
                                             variant="outline" 
                                             size="sm" 
-                                            className="w-full justify-start gap-2 text-muted-foreground hover:text-foreground"
+                                            className="w-full justify-start gap-2 text-purple-400 border-purple-500/20 hover:border-purple-500/30 hover:bg-purple-500/10 hover:text-purple-300 transition-all duration-200"
                                         >
                                             <Plus className="w-4 h-4" />
                                             Create Project
