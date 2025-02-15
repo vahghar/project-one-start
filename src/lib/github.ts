@@ -73,9 +73,7 @@ async function summarizeCommit(githubUrl: string, commitHash: string) {
                 Accepts: 'application/vnd.github.v3.diff'
             },
             timeout: 10000,
-            // Increase max content length to 5MB
             maxContentLength: 5 * 1024 * 1024,
-            // Add maxBodyLength to handle large responses
             maxBodyLength: 5 * 1024 * 1024
         });
 
@@ -84,7 +82,6 @@ async function summarizeCommit(githubUrl: string, commitHash: string) {
         return await aisummarizeCommit(processedDiff) || "No changes in this commit"
     } catch (error) {
         if (axios.isAxiosError(error) && error.message.includes('maxContentLength')) {
-            // If we hit the size limit, try to fetch with compression
             try {
                 const { data } = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
                     headers: {

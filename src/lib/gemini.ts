@@ -14,7 +14,9 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
             await sleep(1000)
             return await fn()
         } catch (e:any) {
-            if (e.status === 429 && i < retries - 1) {
+            const status = e.reponse?.status || e.status;
+            if (status === 429 && i < retries - 1) {
+                console.warn(`Rate limit hit. Retrying in ${Math.pow(2, i) * 2000}ms...`);
                 await sleep(Math.pow(2, i) * 2000)
                 continue
             }
@@ -26,12 +28,10 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
 
 export const aisummarizeCommit = async (diff: string) => {
     try {
-        // Skip if diff is empty
         if (!diff.trim()) {
             return "No changes in this commit";
         }
 
-        // Create a prompt that asks for a concise summary
         const prompt = `Please provide a concise summary of the following git diff:${diff}
 Focus on:
 1. What changed
@@ -39,12 +39,11 @@ Focus on:
 3. Most important updates
 Please keep it brief and technical.`;
 
-        // Generate the summary
         const response = await withRetry(() => model.generateContent({
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
             generationConfig: {
-                temperature: 0.3,  // Lower temperature for more focused output
-                maxOutputTokens: 200,  // Limit response length
+                temperature: 0.3, 
+                maxOutputTokens: 200,
                 topP: 0.8,
                 topK: 40,
             }

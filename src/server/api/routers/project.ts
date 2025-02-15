@@ -2,7 +2,6 @@ import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { pollCommits } from "@/lib/github";
 import { checkCredits, indexGithubRepo } from "@/lib/github-loader";
-import { AlignVerticalSpaceBetween } from "lucide-react";
 
 export const projectRouter = createTRPCRouter({
     createProject: protectedProcedure.input(
