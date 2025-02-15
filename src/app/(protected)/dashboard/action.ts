@@ -28,7 +28,7 @@ export async function askQuestion(question: string, projectId: string) {
                 1 - ("summaryEmbedding" <=> ${queryVector}::vector) > 0.1
                 AND "projectId" = ${projectId}
             ORDER BY similarity DESC 
-            LIMIT 10
+            LIMIT 3
         ` as { fileName: string; sourceCode: string; summary: string }[]
 
         if (result.length === 0) {
