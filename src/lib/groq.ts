@@ -60,7 +60,7 @@ Please keep it brief and technical.`;
 
         const response = await withRetry(() => groq.chat.completions.create({
             messages: [{ role: "user", content: prompt }],
-            model: "mixtral-8x7b-32768", // or "llama3-70b-8192"
+            model: "deepseek-r1-distill-llama-70b",
             temperature: 0.3,
             max_tokens: 200,
             top_p: 0.8,
@@ -90,7 +90,7 @@ export async function summarizeCode(doc: Document) {
                 ---
                 Provide a 100-word summary of this code's purpose.`
             }],
-            model: "mixtral-8x7b-32768",
+            model: "deepseek-r1-distill-llama-70b",
             temperature: 0.2,
             max_tokens: 150,
             top_p: 0.7,
