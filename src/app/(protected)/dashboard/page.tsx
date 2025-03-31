@@ -64,7 +64,7 @@ const DashboardPage = () => {
                 </div>
                 <div>
                   <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-purple-600 text-transparent bg-clip-text">Ask a Question</h2>
-                  <p className="text-sm text-gray-400">Get instant help from Gutter AI</p>
+                  <p className="text-sm text-gray-400">Get instant help from Commit Sense</p>
                 </div>
               </div>
               <div className="p-6">

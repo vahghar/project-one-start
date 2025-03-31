@@ -53,7 +53,7 @@ const CreatePage = () => {
                 <div>
                     <h1 className='font-semibold text-2xl'>Link your Github Repository</h1>
                     <p className='text-sm text-muted-foreground'>
-                        Enter the URL of your repository to link it to gutter
+                        Enter the URL of your repository to link it to Commit Sense
                     </p>
                 </div>
                 <div className='h-4'></div>

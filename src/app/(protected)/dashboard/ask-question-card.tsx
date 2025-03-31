@@ -60,7 +60,7 @@ const AskQuestionCard = () => {
                     <DialogHeader>
                         <div className='flex items-center gap-2'>
                             <DialogTitle>
-                                <Image src="/github.png" alt="gutter" width={40} height={40} />
+                                <Image src="/github.png" alt="commit-sense" width={40} height={40} />
                             </DialogTitle>
                             <Button disabled={saveAnswer.isPending} onClick={()=>{
                                 saveAnswer.mutate({
@@ -132,7 +132,7 @@ const AskQuestionCard = () => {
                             disabled={loading || !question.trim()}
                             className="submit"
                         >
-                            {loading ? 'Processing...' : 'Ask Gutter'}
+                            {loading ? 'Processing...' : 'Ask Commit Sense'}
                         </Button>
                     </form>
                 </CardContent>
