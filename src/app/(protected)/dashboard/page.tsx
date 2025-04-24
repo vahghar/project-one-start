@@ -49,7 +49,6 @@ const DashboardPage = () => {
             <TeamMembers />
             <InviteButton />
             <ArchiveButton />
-            <ThemeToggle />
           </div>
         </div>
 
