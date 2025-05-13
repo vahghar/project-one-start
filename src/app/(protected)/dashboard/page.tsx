@@ -1,21 +1,18 @@
 'use client'
 import useProject from '@/hooks/use-project'
-import { useUser } from '@clerk/nextjs'
 import { Github, Sparkles, Users, Calendar, Activity } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
-import CommitLog from './commit-log'
+const CommitLog = dynamic(() => import('./commit-log'), { ssr: false })
 import AskQuestionCard from './ask-question-card'
-import MeetingCard from './meeting-card'
+const MeetingCard = dynamic(() => import('./meeting-card'), { ssr: false })
 import { Card } from '@/components/ui/card'
 import ArchiveButton from './archive-button'
-import { ThemeToggle } from '@/components/ui/theme-toggle'
 const InviteButton = dynamic(() => import('./invite-button'), { ssr: false })
 import TeamMembers from './team-members'
 import dynamic from 'next/dynamic'
 
 const DashboardPage = () => {
-  const { user } = useUser()
   const { project } = useProject()
 
   return (
@@ -35,7 +32,9 @@ const DashboardPage = () => {
                   Project Repository
                 </p>
                 <Link
-                  href={project?.githubUrl ?? ""}
+                  href={project?.githubUrl ?? "#"}
+                  rel="noopener noreferrer"
+                  target="_blank"
                   className="text-white/80 hover:text-white transition-colors text-sm flex items-center gap-2 group"
                 >
                   {project?.githubUrl}

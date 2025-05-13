@@ -6,12 +6,21 @@ import "./src/env.js";
 
 /** @type {import("next").NextConfig} */
 const config = {
-    eslint:{
+    eslint: {
         ignoreDuringBuilds: true
     },
     typescript: {
         ignoreBuildErrors: true,
     },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+                pathname: '/**',
+            },
+        ],
+    }
 };
 
 export default config;
