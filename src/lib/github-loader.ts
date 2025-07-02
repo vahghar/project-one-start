@@ -48,47 +48,102 @@ export const checkCredits = async (githubUrl: string,githubToken?: string) =>{
 
 export const loadGithubRepos = async (githubUrl: string, githubToken?: string) => {
     const loader = new GithubRepoLoader(githubUrl, {
-        accessToken: githubToken || '',
-        branch: 'main',
-        ignoreFiles: ['package-lock.json', 'yarn.lock', 'pnpm-lock.yaml', 'bun.lockb'],
+        branch: "main",
+        accessToken: githubToken,
         recursive: true,
-        unknown: 'warn',
-        maxConcurrency: 5
+        unknown: "warn",
+        ignoreFiles: [
+            "package-lock.json",
+            "yarn.lock",
+            "pnpm-lock.yaml",
+            ".gitignore",
+            ".env",
+            ".env.local",
+            ".env.production",
+            ".env.development",
+            "node_modules/**",
+            "dist/**",
+            "build/**",
+            ".next/**",
+            "coverage/**",
+            "*.log",
+            "*.lock",
+            "*.min.js",
+            "*.min.css"
+        ]
     })
-    const docs = await loader.load()
-    return docs
+    return await loader.load()
 }
 
 export const indexGithubRepo = async (projectId: string, githubUrl: string, githubToken?: string) => {
     const docs = await loadGithubRepos(githubUrl, githubToken)
     const allEmbeddings = await generateEmbeddings(docs)
-    await Promise.allSettled(allEmbeddings.map(async (embedding,index)=>{
-        if(!embedding) return
-        const sourceCodeEmbedding = await db.sourceCodeEmbedding.create({
-            data: {
-                summary: embedding.summary,
-                sourceCode: embedding.sourceCode,
-                fileName: embedding.fileName,
-                projectId
-            }
-        })
-        await db.$executeRaw`
-        UPDATE "sourceCodeEmbedding"
-        SET "summaryEmbedding" = ${embedding.embedding}::vector
-        WHERE "id" = ${sourceCodeEmbedding.id}
-        `
+    
+    // Filter out embeddings with empty summaries or null embeddings
+    const validEmbeddings = allEmbeddings.filter(embedding => 
+        embedding && 
+        embedding.summary && 
+        embedding.summary.trim() !== "" && 
+        embedding.embedding && 
+        embedding.embedding.length > 0
+    )
+    
+    console.log(`Generated ${validEmbeddings.length} valid embeddings out of ${allEmbeddings.length} total files`)
+    
+    await Promise.allSettled(validEmbeddings.map(async (embedding, index) => {
+        if (!embedding) return
+        
+        try {
+            const sourceCodeEmbedding = await db.sourceCodeEmbedding.create({
+                data: {
+                    summary: embedding.summary,
+                    sourceCode: embedding.sourceCode,
+                    fileName: embedding.fileName,
+                    projectId
+                }
+            })
+            
+            await db.$executeRaw`
+            UPDATE "sourceCodeEmbedding"
+            SET "summaryEmbedding" = ${embedding.embedding}::vector
+            WHERE "id" = ${sourceCodeEmbedding.id}
+            `
+            
+            console.log(`Successfully indexed: ${embedding.fileName}`)
+        } catch (error) {
+            console.error(`Failed to index ${embedding.fileName}:`, error)
+        }
     }))
 }
 
 const generateEmbeddings = async (docs: Document[]) => {
     return await Promise.all(docs.map(async doc => {
-        const summary = await summarizeCode(doc)
-        const embedding = await generateEmbedding(summary)
-        return {
-            summary,
-            embedding,
-            sourceCode: JSON.parse(JSON.stringify(doc.pageContent)),
-            fileName: doc.metadata.source
+        try {
+            const summary = await summarizeCode(doc)
+            
+            // Skip files with empty summaries
+            if (!summary || summary.trim() === "") {
+                console.log(`Skipping ${doc.metadata.source} - empty summary`)
+                return null
+            }
+            
+            const embedding = await generateEmbedding(summary)
+            
+            // Skip files with null embeddings
+            if (!embedding || embedding.length === 0) {
+                console.log(`Skipping ${doc.metadata.source} - null embedding`)
+                return null
+            }
+            
+            return {
+                summary,
+                embedding,
+                sourceCode: JSON.parse(JSON.stringify(doc.pageContent)),
+                fileName: doc.metadata.source
+            }
+        } catch (error) {
+            console.error(`Error processing ${doc.metadata.source}:`, error)
+            return null
         }
     }))
 }

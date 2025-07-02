@@ -25,7 +25,7 @@ function App() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white overflow-hidden">
       {/* Navbar */}
-      <nav className="container mx-auto px-6 py-6 flex justify-between items-center backdrop-blur-sm bg-gray-950/50 fixed top-0 left-0 right-0 z-50 border-b border-purple-500/10">
+      <nav className="w-full px-6 py-6 flex justify-between items-center backdrop-blur-sm bg-gray-950/50 fixed top-0 left-0 right-0 z-50 border-b border-purple-500/10">
         <div className="flex items-center space-x-2">
           <GitCommit className="w-7 h-7 text-purple-500 animate-pulse" />
           <span className="font-bold text-2xl bg-gradient-to-r from-purple-400 to-purple-600 text-transparent bg-clip-text">CommitSense</span>
@@ -33,8 +33,7 @@ function App() {
         <div className="hidden md:flex items-center space-x-8">
           <a href="#features" className="text-gray-300 hover:text-purple-400 transition-all hover:scale-105">Features</a>
           <a href="#pricing" className="text-gray-300 hover:text-purple-400 transition-all hover:scale-105">Pricing</a>
-          <a href="#testimonials" className="text-gray-300 hover:text-purple-400 transition-all hover:scale-105">Testimonials</a>
-          <Button variant="outline" className='border-purple-500/20 hover:bg-purple-500/10 hover:text-white'>
+          <Button variant="outline" className='border-purple-500/30 hover:bg-purple-500/10 hover:text-white'>
             <Link href="/sign-in">Sign In</Link>
           </Button>
         </div>
@@ -44,25 +43,25 @@ function App() {
       <header className="container mx-auto px-6 pt-32 pb-20 relative">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-purple-500/30 rounded-full blur-[120px] -z-10"></div>
         <div className="max-w-5xl mx-auto text-center relative">
-          <div className="inline-flex items-center px-4 py-2 bg-purple-500/10 rounded-full mb-8 border border-purple-500/20 animate-bounce">
-            <Sparkles className="w-4 h-4 text-purple-400 mr-2" />
-            <span className="text-sm text-purple-300">Revolutionizing Code Reviews</span>
+          <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-purple-500/20 to-pink-500/20 rounded-full mb-8 border border-purple-500/30 backdrop-blur-sm">
+            <Sparkles className="w-5 h-5 text-purple-400 mr-3" />
+            <span className="text-sm text-purple-300 font-medium">Revolutionizing Code Reviews</span>
           </div>
           <h1 className="text-6xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-purple-400 via-pink-500 to-purple-600 text-transparent bg-clip-text leading-tight">
             Transform Your GitHub <br />Workflow with AI
           </h1>
-          <p className="text-xl text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
             CommitSense uses advanced AI to analyze your commits, providing intelligent summaries, 
             dependency tracking, and collaboration tools that make code reviews a breeze.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
-            <Button size="lg" className="bg-purple-600 hover:bg-purple-700 group text-lg h-14 px-8">
+            <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 group text-lg h-14 px-8 rounded-full shadow-2xl shadow-purple-500/25">
               <Link href="/sign-up" className="flex items-center">
                 Start Free Trial
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
-            <Button size="lg" variant={'outline'} className='border-purple-500/20 hover:bg-purple-500/5 h-14 px-8 text-lg hover:text-white'>
+            <Button size="lg" variant={'outline'} className='border-purple-500/30 hover:bg-purple-500/10 h-14 px-8 text-lg hover:text-white rounded-full backdrop-blur-sm'>
               <Github className="w-5 h-5 mr-2" />
               <Link href="https://github.com/vahghar/project-one-start" rel='noopener noreferrer' target='_blank' className="flex items-center">
                 View on GitHub
@@ -71,13 +70,13 @@ function App() {
           </div>
           
           {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-12 border-t border-purple-500/10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-12 border-t border-purple-500/20">
             <div className="text-center">
-              <h3 className="text-4xl font-bold text-purple-400 mb-2">10k+</h3>
+              <h3 className="text-4xl font-bold text-purple-400 mb-2">100</h3>
               <p className="text-gray-400">Active Users</p>
             </div>
             <div className="text-center">
-              <h3 className="text-4xl font-bold text-purple-400 mb-2">1M+</h3>
+              <h3 className="text-4xl font-bold text-purple-400 mb-2">10k+</h3>
               <p className="text-gray-400">Commits Analyzed</p>
             </div>
             <div className="text-center">
@@ -98,71 +97,64 @@ function App() {
       {/* Pricing Section */}
       <PricingSection/>
 
-      {/* Testimonials Section */}
-      <TestimonialSection/>
+      {/* Testimonials Section 
+      <TestimonialSection/>*/}
 
       {/* CTA Section */}
       <section className="py-20 relative">
-        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/20 to-pink-600/20 blur-3xl -z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-purple-600/10 to-pink-600/10 blur-3xl -z-10"></div>
         <div className="container mx-auto px-6 text-center relative">
           <h2 className="text-4xl font-bold text-white mb-6">Ready to transform your workflow?</h2>
-          <p className="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto">
             Join thousands of developers who are already using CommitSense to improve their development process.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button size="lg" className="bg-purple-600 hover:bg-purple-700 group text-lg">
+            <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 group text-lg rounded-full shadow-2xl shadow-purple-500/25">
               <Link href="/sign-up" className="flex items-center">
                 Start Your Free Trial
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
               </Link>
-            </Button>
-            <Button size="lg" variant="outline" className="border-purple-500/20 hover:bg-purple-500/10">
-              Schedule a Demo
             </Button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-gray-950 text-gray-400 py-16 border-t border-purple-500/10">
+      <footer className="bg-gray-950/80 backdrop-blur-sm text-gray-400 py-16 border-t border-purple-500/20">
         <div className="container mx-auto px-6">
-          <div className="grid md:grid-cols-4 gap-12">
+          <div className="grid md:grid-cols-2 gap-12">
             <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <GitCommit className="w-6 h-6 text-purple-500" />
-                <span className="font-bold text-white text-xl">CommitSense</span>
+              <div className="flex items-center space-x-3">
+                <GitCommit className="w-7 h-7 text-purple-500" />
+                <span className="font-bold text-white text-2xl">CommitSense</span>
               </div>
-              <p className="text-gray-400">Making code reviews smarter with AI-powered insights.</p>
+              <p className="text-gray-400 text-lg">
+                Making code reviews smarter with AI-powered insights.
+              </p>
             </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Product</h4>
-              <ul className="space-y-2">
-                <li><a href="#features" className="hover:text-purple-400 transition">Features</a></li>
-                <li><a href="#pricing" className="hover:text-purple-400 transition">Pricing</a></li>
-                <li><a href="#testimonials" className="hover:text-purple-400 transition">Testimonials</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Documentation</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Company</h4>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:text-purple-400 transition">About</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Blog</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Careers</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Contact</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="text-white font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2">
-                <li><a href="#" className="hover:text-purple-400 transition">Privacy</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Terms</a></li>
-                <li><a href="#" className="hover:text-purple-400 transition">Security</a></li>
-              </ul>
+            <div className="grid grid-cols-2 gap-8">
+              <div>
+                <h4 className="text-white font-semibold mb-4">Product</h4>
+                <ul className="space-y-2">
+                  <li><a href="#features" className="hover:text-purple-400 transition">Features</a></li>
+                  <li><a href="#pricing" className="hover:text-purple-400 transition">Pricing</a></li>
+                  <li><a href="#" className="hover:text-purple-400 transition">Documentation</a></li>
+                  <li><a href="#" className="hover:text-purple-400 transition">API</a></li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-white font-semibold mb-4">Company</h4>
+                <ul className="space-y-2">
+                  <li><a href="#" className="hover:text-purple-400 transition">About</a></li>
+                  <li><a href="#" className="hover:text-purple-400 transition">Blog</a></li>
+                  <li><a href="#" className="hover:text-purple-400 transition">Careers</a></li>
+                  <li><a href="#" className="hover:text-purple-400 transition">Contact</a></li>
+                </ul>
+              </div>
             </div>
           </div>
-          <div className="border-t border-purple-500/10 mt-12 pt-8 text-center">
-            <p>© 2025 CommitSense. All rights reserved.</p>
+          <div className="border-t border-purple-500/20 mt-12 pt-8 text-center">
+            <p>© 2025 CommitSense. Built with ❤️ for developers.</p>
           </div>
         </div>
       </footer>

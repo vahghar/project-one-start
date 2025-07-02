@@ -1,106 +1,181 @@
 'use client'
+
 import useProject from '@/hooks/use-project'
-import { Github, Sparkles, Users, Calendar, Activity } from 'lucide-react'
+import { Github, Sparkles, Calendar, Activity, FolderTree, Users, Plus } from 'lucide-react'
 import Link from 'next/link'
 import React from 'react'
-const CommitLog = dynamic(() => import('./commit-log'), { ssr: false })
-import AskQuestionCard from './ask-question-card'
-const MeetingCard = dynamic(() => import('./meeting-card'), { ssr: false })
-import { Card } from '@/components/ui/card'
-import ArchiveButton from './archive-button'
-const InviteButton = dynamic(() => import('./invite-button'), { ssr: false })
-import TeamMembers from './team-members'
 import dynamic from 'next/dynamic'
+import AskQuestionCard from './ask-question-card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import ArchiveButton from './archive-button'
+import TeamMembers from './team-members'
+import FileTree from './file-tree'
+
+const CommitLog = dynamic(() => import('./commit-log'), { ssr: false })
+const MeetingCard = dynamic(() => import('./meeting-card'), { ssr: false })
+const InviteButton = dynamic(() => import('./invite-button'), { ssr: false })
 
 const DashboardPage = () => {
   const { project } = useProject()
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-gray-950 via-gray-900 to-black text-white">
-      <div className="absolute inset-0 bg-[url('/grid.svg')] bg-center [mask-image:linear-gradient(180deg,white,rgba(255,255,255,0))]" />
-      <div className="relative px-6 py-8 mx-auto max-w-[2000px] space-y-8">
-        {/* Top Bar */}
-        <div className='flex items-center justify-between flex-wrap gap-4'>
-          {/* Github link with enhanced styling */}
-          <Card className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 text-white shadow-xl shadow-purple-500/20 p-4 hover:shadow-purple-500/30 transition-all duration-300 hover:scale-[1.02] border-0">
-            <div className="flex items-center gap-4">
-              <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm">
-                <Github className="size-6" />
-              </div>
-              <div>
-                <p className="font-medium mb-1">
-                  Project Repository
-                </p>
-                <Link
-                  href={project?.githubUrl ?? "#"}
-                  rel="noopener noreferrer"
-                  target="_blank"
-                  className="text-white/80 hover:text-white transition-colors text-sm flex items-center gap-2 group"
-                >
-                  {project?.githubUrl}
-                  <span className="opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
-                </Link>
-              </div>
-            </div>
-          </Card>
-
-          <div className="flex items-center gap-4">
+    <div className="space-y-8">
+      {/* Header Section */}
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold text-slate-900 dark:text-slate-100">
+              Dashboard
+            </h1>
+            <p className="text-slate-600 dark:text-slate-400 mt-1">
+              Welcome to your project overview and insights
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
             <TeamMembers />
             <InviteButton />
             <ArchiveButton />
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
-          {/* Side Cards */}
-          <div className="md:col-span-2 space-y-8">
-            {/* Ask Question Card */}
-            <Card className="overflow-hidden border-purple-500/10 hover:border-purple-500/20 transition-colors bg-gray-900/50 backdrop-blur-sm shadow-xl hover:shadow-purple-500/5">
-              <div className="p-6 border-b border-purple-500/10 flex items-center gap-4">
-                <div className="p-2 bg-purple-600/20 rounded-xl">
-                  <Sparkles className="size-5 text-purple-400" />
+        {/* Project Repository Card */}
+        <Card className="overflow-hidden border-0 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 text-white shadow-2xl">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-white/10 rounded-xl backdrop-blur-sm border border-white/20">
+                  <Github className="size-6" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-purple-600 text-transparent bg-clip-text">Ask a Question</h2>
-                  <p className="text-sm text-gray-400">Get instant help from Commit Sense</p>
+                  <h3 className="font-semibold text-lg mb-1">
+                    {project?.name || 'Project Repository'}
+                  </h3>
+                  <Link
+                    href={project?.githubUrl ?? '#'}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                    className="text-slate-300 hover:text-white transition-colors text-sm flex items-center gap-2 group"
+                  >
+                    {project?.githubUrl || 'github.com/your-repo'}
+                    <span className="opacity-0 group-hover:opacity-100 transition-opacity">↗</span>
+                  </Link>
                 </div>
-              </div>
-              <div className="p-6">
-                <AskQuestionCard />
-              </div>
-            </Card>
-
-            {/* Meeting Card */}
-            <Card className="overflow-hidden border-purple-500/10 hover:border-purple-500/20 transition-colors bg-gray-900/50 backdrop-blur-sm shadow-xl hover:shadow-purple-500/5">
-              <div className="p-6 border-b border-purple-500/10 flex items-center gap-4">
-                <div className="p-2 bg-purple-600/20 rounded-xl">
-                  <Calendar className="size-5 text-purple-400" />
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-purple-600 text-transparent bg-clip-text">Schedule Meeting</h2>
-                  <p className="text-sm text-gray-400">Plan your next team sync</p>
-                </div>
-              </div>
-              <div className="p-6">
-                <MeetingCard />
-              </div>
-            </Card>
-          </div>
-
-          {/* Commit Log */}
-          <Card className="md:col-span-3 border-purple-500/10 hover:border-purple-500/20 transition-colors bg-gray-900/50 backdrop-blur-sm shadow-xl hover:shadow-purple-500/5">
-            <div className="p-6 border-b border-purple-500/10 flex items-center gap-4">
-              <div className="p-2 bg-purple-600/20 rounded-xl">
-                <Activity className="size-5 text-purple-400" />
-              </div>
-              <div>
-                <h2 className="text-lg font-semibold bg-gradient-to-r from-purple-400 to-purple-600 text-transparent bg-clip-text">Recent Activity</h2>
-                <p className="text-sm text-gray-400">Latest commits and changes</p>
               </div>
             </div>
-            <div className="p-6">
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Left Column */}
+        <div className="lg:col-span-2 space-y-8">
+          {/* Ask Question Card */}
+          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg">
+                  <Sparkles className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Ask CommitSense</CardTitle>
+                  <CardDescription>
+                    Get instant help and insights from your codebase
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <AskQuestionCard />
+            </CardContent>
+          </Card>
+
+          {/* Recent Activity */}
+          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+                  <Activity className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Recent Activity</CardTitle>
+                  <CardDescription>
+                    Latest commits, changes, and team updates
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
               <CommitLog />
-            </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Right Column */}
+        <div className="space-y-8">
+          {/* File Tree */}
+          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg">
+                  <FolderTree className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Project Structure</CardTitle>
+                  <CardDescription>
+                    Explore your codebase organization
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <FileTree />
+            </CardContent>
+          </Card>
+
+          {/* Schedule Meeting */}
+          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg">
+                  <Calendar className="w-5 h-5 text-white" />
+                </div>
+                <div>
+                  <CardTitle className="text-lg">Schedule Meeting</CardTitle>
+                  <CardDescription>
+                    Plan your next team sync session
+                  </CardDescription>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <MeetingCard />
+            </CardContent>
+          </Card>
+
+          {/* Quick Actions */}
+          <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-lg">Quick Actions</CardTitle>
+              <CardDescription>
+                Common tasks and shortcuts
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Button variant="outline" className="w-full justify-start gap-3 h-12">
+                <Plus className="w-4 h-4" />
+                Create New Project
+              </Button>
+              <Button variant="outline" className="w-full justify-start gap-3 h-12">
+                <Users className="w-4 h-4" />
+                Invite Team Member
+              </Button>
+              <Button variant="outline" className="w-full justify-start gap-3 h-12">
+                <Calendar className="w-4 h-4" />
+                Schedule Meeting
+              </Button>
+            </CardContent>
           </Card>
         </div>
       </div>

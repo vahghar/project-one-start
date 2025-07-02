@@ -170,5 +170,48 @@ export const projectRouter = createTRPCRouter({
         return {
             fileCount, userCredits: userCredits?.credits || 0
         }
+    }),
+    getFileStructure: protectedProcedure.input(z.object({
+        projectId: z.string()
+    })).query(async ({ctx, input}) => {
+        const files = await ctx.db.sourceCodeEmbedding.findMany({
+            where: {
+                projectId: input.projectId
+            },
+            select: {
+                fileName: true
+            }
+        })
+
+        // Build tree structure from file paths
+        const tree: Record<string, any> = {}
+        
+        files.forEach(file => {
+            const pathParts = file.fileName.split('/')
+            let currentLevel = tree
+            
+            pathParts.forEach((part, index) => {
+                if (!currentLevel[part]) {
+                    currentLevel[part] = {
+                        name: part,
+                        type: index === pathParts.length - 1 ? 'file' : 'folder',
+                        children: index === pathParts.length - 1 ? null : {}
+                    }
+                }
+                if (index < pathParts.length - 1) {
+                    currentLevel = currentLevel[part].children
+                }
+            })
+        })
+
+        // Convert to array format for easier rendering
+        const convertToArray = (obj: Record<string, any>): any[] => {
+            return Object.values(obj).map(item => ({
+                ...item,
+                children: item.children ? convertToArray(item.children) : null
+            }))
+        }
+
+        return convertToArray(tree)
     })
 })

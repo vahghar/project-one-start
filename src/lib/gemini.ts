@@ -76,27 +76,87 @@ export async function summarizeCode(doc: Document) {
     console.log("getting summary for", doc.metadata.source);
     try {
         const code = doc.pageContent.slice(0, 10000);
-        const response = await model.generateContent([
-            `You are an intelligent senior software engineer who specializes in onboarding junior software engineers onto projects`,
-            `You are onboarding a junior software engineer and explaining to them the purpose of the ${doc.metadata.source} file`,
-            `Here is the code:
-        --- 
-        ${code} 
-        ---
-        Give a summary no more than 100 words of the code above.`
-        ])
-        return response.response.text()
+        
+        // Skip files that are too small or likely not code
+        if (code.length < 50) {
+            console.log(`Skipping ${doc.metadata.source} - too small (${code.length} chars)`)
+            return ""
+        }
+        
+        // Skip binary files or files with mostly non-text content
+        const textRatio = code.replace(/[^\x20-\x7E]/g, '').length / code.length;
+        if (textRatio < 0.7) {
+            console.log(`Skipping ${doc.metadata.source} - low text ratio (${(textRatio * 100).toFixed(1)}%)`)
+            return ""
+        }
+        
+        const response = await withRetry(() => model.generateContent({
+            contents: [{ 
+                role: 'user', 
+                parts: [{ 
+                    text: `You are an intelligent senior software engineer who specializes in onboarding junior software engineers onto projects.
+
+You are onboarding a junior software engineer and explaining to them the purpose of the ${doc.metadata.source} file.
+
+Here is the code:
+---
+${code}
+---
+
+Give a comprehensive summary (100-150 words) of what this code does, its purpose, and key functionality. Focus on:
+1. What this file/component does
+2. Key functions or classes
+3. How it fits into the overall project
+4. Important patterns or concepts used
+
+Make it informative and helpful for understanding the codebase.` 
+                }] 
+            }],
+            generationConfig: {
+                temperature: 0.2,
+                maxOutputTokens: 200,
+                topP: 0.8,
+                topK: 40,
+            }
+        }));
+        
+        const result = response.response.text();
+        
+        // Validate the result
+        if (!result || result.trim().length < 20) {
+            console.log(`Skipping ${doc.metadata.source} - summary too short`)
+            return ""
+        }
+        
+        return result.trim();
     }
     catch (error) {
+        console.error(`Error summarizing ${doc.metadata.source}:`, error);
         return ""
     }
 }
 
 export async function generateEmbedding(summary: string) {
-    const model = gen_ai.getGenerativeModel({
-        model: "text-embedding-004"
-    })
-    const result = await model.embedContent(summary)
-    const embedding = result.embedding
-    return embedding.values
+    try {
+        if (!summary || summary.trim() === "") {
+            console.log("Cannot generate embedding for empty summary");
+            return null;
+        }
+        
+        const model = gen_ai.getGenerativeModel({
+            model: "text-embedding-004"
+        })
+        const result = await model.embedContent(summary)
+        const embedding = result.embedding
+        
+        if (!embedding || embedding.values.length === 0) {
+            console.log("Generated empty embedding");
+            return null;
+        }
+        
+        return embedding.values
+    } catch (error) {
+        console.error("Error generating embedding:", error);
+        return null;
+    }
 }
