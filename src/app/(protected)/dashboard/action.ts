@@ -3,7 +3,7 @@
 import { streamText } from 'ai'
 import { createStreamableValue } from 'ai/rsc'
 import { createGoogleGenerativeAI } from '@ai-sdk/google'
-import { generateEmbedding } from '@/lib/gemini'
+import { generateEmbedding } from '@/lib/embedding'
 import { db } from '@/server/db'
 
 const google = createGoogleGenerativeAI({
@@ -36,6 +36,7 @@ export async function askQuestion(question: string, projectId: string) {
 
         // If we don't have enough highly relevant files, lower the threshold and get more
         if (result.length < 3) {
+            const filenamesToExclude = result.map(r => r.fileName);
             const additionalResult = await db.$queryRaw`
                 SELECT 
                     "fileName", 
@@ -47,7 +48,7 @@ export async function askQuestion(question: string, projectId: string) {
                     "summaryEmbedding" IS NOT NULL
                     AND 1 - ("summaryEmbedding" <=> ${queryVector}::vector) > 0.15
                     AND "projectId" = ${projectId}
-                    AND "fileName" NOT IN (${result.length > 0 ? result.map(r => r.fileName) : ['']})
+                    AND "fileName" <> ALL (${filenamesToExclude})
                 ORDER BY similarity DESC 
                 LIMIT ${5 - result.length}
             ` as { fileName: string; sourceCode: string; summary: string; similarity: number }[]
@@ -95,7 +96,7 @@ ${doc.sourceCode}
 ---
 `).join('\n')
 
-        const model = google('gemini-1.5-flash')
+        const model = google('gemini-2.5-flash')
         
         // Add a timeout to prevent hanging
         const timeoutPromise = new Promise((_, reject) => {

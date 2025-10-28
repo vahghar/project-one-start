@@ -10,7 +10,8 @@ const SyncUser = async () => {
     const client = await clerkClient();
     const user = await client.users.getUser(userId);
     if(!user.emailAddresses[0]?.emailAddress){
-        return notFound();
+            console.error('No email address found for user');
+            return notFound();
     }
     await db.user.upsert({
         where:{
@@ -30,7 +31,7 @@ const SyncUser = async () => {
         },
     })
 
-    return redirect('/dashboard')
+    redirect('/dashboard')
 }
 
 export default SyncUser

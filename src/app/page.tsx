@@ -1,13 +1,20 @@
 'use client'
 import React, { useEffect } from 'react';
-import { Github, FileText, Users, GitCommit, ArrowRight, CheckCircle, Shield, Zap, Star, Code, Sparkles, BarChart } from 'lucide-react';
+import { Github, GitCommit, ArrowRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { useUser } from '@clerk/nextjs';
 import { redirect } from 'next/navigation';
-import FeatureSection from '@/components/ui/feature-card';
-import PricingSection from '@/components/ui/pricing-card';
-import TestimonialSection from '@/components/ui/testimonial-card';
+import dynamic from 'next/dynamic';
+//import FeatureSection from '@/components/ui/feature-card';
+//import PricingSection from '@/components/ui/pricing-card';
+
+const FeatureSection = dynamic(() => import('@/components/ui/feature-card'), {
+  loading: () => <div className="animate-pulse h-96 bg-gray-200 rounded-lg"></div>
+});
+const PricingSection = dynamic(() => import('@/components/ui/pricing-card'), {
+  loading: () => <div className="animate-pulse h-96 bg-gray-200 rounded-lg"></div>
+});
 
 function App() {
   const { isSignedIn } = useUser();
@@ -51,8 +58,9 @@ function App() {
             Transform Your GitHub <br />Workflow with AI
           </h1>
           <p className="text-xl text-gray-300 mb-12 max-w-3xl mx-auto leading-relaxed">
-            CommitSense uses advanced AI to analyze your commits, providing intelligent summaries, 
-            dependency tracking, and collaboration tools that make code reviews a breeze.
+            Your company just assigned you a new repo nobody understands?
+            Don’t panic. CommitSense helps you analyze, summarize, and survive it.
+            AI that actually makes onboarding less painful.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
             <Button size="lg" className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 group text-lg h-14 px-8 rounded-full shadow-2xl shadow-purple-500/25">
@@ -68,7 +76,7 @@ function App() {
               </Link>
             </Button>
           </div>
-          
+
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-20 pt-12 border-t border-purple-500/20">
             <div className="text-center">
@@ -81,7 +89,7 @@ function App() {
             </div>
             <div className="text-center">
               <h3 className="text-4xl font-bold text-purple-400 mb-2">98%</h3>
-              <p className="text-gray-400">Accuracy Rate</p>
+              <p className="text-gray-400">Accuracy rate</p>
             </div>
             <div className="text-center">
               <h3 className="text-4xl font-bold text-purple-400 mb-2">24/7</h3>
@@ -92,10 +100,10 @@ function App() {
       </header>
 
       {/* Features Section with Cards */}
-      <FeatureSection/>
+      <FeatureSection />
 
       {/* Pricing Section */}
-      <PricingSection/>
+      <PricingSection />
 
       {/* Testimonials Section 
       <TestimonialSection/>*/}

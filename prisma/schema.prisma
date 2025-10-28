@@ -39,7 +39,7 @@ model Project {
 
     deletedAt DateTime?
     userToProjects UserToProject[]
-    comits Commit[]
+    commits Commit[]
     sourceCodeEmbeddings sourceCodeEmbedding[]
 
     savedQuestions question[]
@@ -58,6 +58,8 @@ model UserToProject {
     project Project @relation(fields: [projectId], references: [id])
 
     @@unique([userId,projectId])
+    @@index([userId])
+    @@index([projectId])
 }
 
 model Commit {
@@ -75,6 +77,8 @@ model Commit {
     commitDate DateTime
 
     summary String
+    @@index([projectId])
+    @@index([commitDate])
 }
 
 model sourceCodeEmbedding {
@@ -87,6 +91,7 @@ model sourceCodeEmbedding {
 
     projectId String
     project Project @relation(fields: [projectId], references: [id])
+    @@index([projectId])
 }
 
 model question { 

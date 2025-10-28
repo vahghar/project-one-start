@@ -3,7 +3,7 @@ import { Document } from "@langchain/core/documents";
 
 const gen_ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
 const model = gen_ai.getGenerativeModel({
-    model: 'gemini-1.5-flash'
+    model: 'gemini-2.5-flash'
 });
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
@@ -123,7 +123,7 @@ Make it informative and helpful for understanding the codebase.`
         const result = response.response.text();
         
         // Validate the result
-        if (!result || result.trim().length < 20) {
+        if (!result || result.trim().length < 50) {
             console.log(`Skipping ${doc.metadata.source} - summary too short`)
             return ""
         }
@@ -132,31 +132,6 @@ Make it informative and helpful for understanding the codebase.`
     }
     catch (error) {
         console.error(`Error summarizing ${doc.metadata.source}:`, error);
-        return ""
-    }
-}
-
-export async function generateEmbedding(summary: string) {
-    try {
-        if (!summary || summary.trim() === "") {
-            console.log("Cannot generate embedding for empty summary");
-            return null;
-        }
-        
-        const model = gen_ai.getGenerativeModel({
-            model: "text-embedding-004"
-        })
-        const result = await model.embedContent(summary)
-        const embedding = result.embedding
-        
-        if (!embedding || embedding.values.length === 0) {
-            console.log("Generated empty embedding");
-            return null;
-        }
-        
-        return embedding.values
-    } catch (error) {
-        console.error("Error generating embedding:", error);
-        return null;
+        return `Error summarizing ${doc.metadata.source}: ${error instanceof Error ? error.message : 'Unknown error'}`;
     }
 }

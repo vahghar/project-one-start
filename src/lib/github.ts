@@ -1,14 +1,12 @@
 import { db } from "@/server/db";
 import { Octokit } from "octokit";
 import axios from "axios";
-//import { aisummarizeCommit } from "./gemini";
 import { aisummarizeCommit } from "./groq";
+import { generateEmbedding } from "./embedding";
 
 export const octokit = new Octokit({
     auth: process.env.GITHUB_TOKEN,
 });
-
-const githubUrl = "https://github.com/docker/genai-stack"
 
 type Response = {
     commitHash: string,
@@ -38,10 +36,19 @@ export const getCommitHashes = async (githubUrl: string): Promise<Response[]> =>
     }))
 }
 
+
 export const pollCommits = async (projectId: string) => {
     const { githubUrl } = await fetchProjectGithubUrl(projectId)
     const commitHashes = await getCommitHashes(githubUrl)
     const unprocessedCommits = await filterUnprocessedCommits(projectId, commitHashes)
+
+    if (unprocessedCommits.length === 0) {
+        console.log("No new commits to process.");
+        return [];
+    }
+
+    console.log(`Found ${unprocessedCommits.length} new commits to process.`);
+
     const summaryResponses = await Promise.allSettled(unprocessedCommits.map((commit: any) => {
         return summarizeCommit(githubUrl, commit.commitHash)
     }))
@@ -67,15 +74,17 @@ export const pollCommits = async (projectId: string) => {
     return commits
 }
 
+
 async function summarizeCommit(githubUrl: string, commitHash: string) {
     try {
         const { data } = await axios.get(`${githubUrl}/commit/${commitHash}.diff`, {
             headers: {
                 Accepts: 'application/vnd.github.v3.diff'
             },
-            timeout: 10000,
-            maxContentLength: 5 * 1024 * 1024,
-            maxBodyLength: 5 * 1024 * 1024
+            timeout: 15000, // Increased timeout
+            maxContentLength: 50 * 1024 * 1024, // Increased to 50MB
+            maxBodyLength: 50 * 1024 * 1024,    // Increased to 50MB
+            decompress: true // Let axios handle decompression
         });
 
         const processedDiff = processLargeDiff(data);

@@ -1,21 +1,17 @@
 import Groq from "groq-sdk";
-import { GoogleGenerativeAI } from "@google/generative-ai";
 import { Document } from "@langchain/core/documents";
 
-const gen_ai = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || "");
-const model = gen_ai.getGenerativeModel({
-    model: 'gemini-1.5-flash'
-});
+import dotenv from "dotenv";
+dotenv.config();
 
 const groq = new Groq({
   apiKey: process.env.GROQ_API_KEY || "",
 });
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 // Track last request time for rate limiting (Groq has strict rate limits)
 let lastRequestTime = 0;
-
+/*
 async function withRetry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
     // Groq typically allows 2-3 requests per second depending on model
     const now = Date.now();
@@ -44,6 +40,53 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
     }
     throw new Error('Max retries exceeded');
 }
+*/
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+// Regex to find Groq's "try again in X.Xs" message
+const groqRetryRegex = /Please try again in (\d+(\.\d+)?)s/;
+
+async function withRetry<T>(fn: () => Promise<T>, retries = 3): Promise<T> {
+  for (let i = 0; i < retries; i++) {
+    try {
+      console.log(`Attempt ${i + 1}/${retries} for Groq API call`);
+      lastRequestTime = Date.now();
+      return await fn();
+    } catch (e: any) {
+      const status = e.status || e.response?.status;
+      const errorMessage = e.message || "";
+      
+      console.error(`Groq API Error (Attempt ${i + 1}):`, { status, message: errorMessage });
+
+      if (i >= retries - 1) {
+        throw new Error(`Groq API failed after ${retries} attempts: ${e.message}`);
+      }
+
+      if (status === 429 || status === 503) {
+        let waitTime = Math.pow(2, i) * 1000; // Default: 1s, 2s, 4s
+
+        // --- THIS IS THE FIX ---
+        // Try to parse the specific wait time from Groq's error
+        const match = errorMessage.match(groqRetryRegex);
+        if (match && match[1]) {
+          const apiWaitTimeInSeconds = parseFloat(match[1]);
+          // Use the API's suggested time + a 500ms buffer
+          waitTime = (apiWaitTimeInSeconds * 1000) + 500; 
+          console.log(`Groq API says to wait ${apiWaitTimeInSeconds}s.`);
+        }
+        // ------------------------
+        
+        console.warn(`Rate limited, retrying in ${waitTime}ms...`);
+        await sleep(waitTime); // Wait the correct amount of time
+        continue;
+      }
+
+      // It's not a 429/503 error, throw it
+      throw new Error(`Groq API failed: ${e.message}`);
+    }
+  }
+  throw new Error('Max retries exceeded');
+}
 
 export const aisummarizeCommit = async (diff: string) => {
     try {
@@ -60,7 +103,7 @@ Please keep it brief and technical.`;
 
         const response = await withRetry(() => groq.chat.completions.create({
             messages: [{ role: "user", content: prompt }],
-            model: "deepseek-r1-distill-llama-70b",
+            model: "llama-3.1-8b-instant",
             temperature: 0.3,
             max_tokens: 200,
             top_p: 0.8,
@@ -90,7 +133,7 @@ export async function summarizeCode(doc: Document) {
                 ---
                 Provide a 100-word summary of this code's purpose.`
             }],
-            model: "deepseek-r1-distill-llama-70b",
+            model: "llama-3.1-8b-instant",
             temperature: 0.2,
             max_tokens: 150,
             top_p: 0.7,
@@ -101,13 +144,4 @@ export async function summarizeCode(doc: Document) {
         console.error('Error generating code summary:', error);
         return "";
     }
-}
-
-export async function generateEmbedding(summary: string) {
-    const model = gen_ai.getGenerativeModel({
-        model: "text-embedding-004"
-    })
-    const result = await model.embedContent(summary)
-    const embedding = result.embedding
-    return embedding.values
 }

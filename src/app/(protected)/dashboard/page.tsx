@@ -3,7 +3,7 @@
 import useProject from '@/hooks/use-project'
 import { Github, Sparkles, Calendar, Activity, FolderTree, Users, Plus } from 'lucide-react'
 import Link from 'next/link'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import dynamic from 'next/dynamic'
 import AskQuestionCard from './ask-question-card'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import ArchiveButton from './archive-button'
 import TeamMembers from './team-members'
 import FileTree from './file-tree'
+import { Badge } from '@/components/ui/badge'
 
 const CommitLog = dynamic(() => import('./commit-log'), { ssr: false })
 const MeetingCard = dynamic(() => import('./meeting-card'), { ssr: false })
@@ -18,6 +19,32 @@ const InviteButton = dynamic(() => import('./invite-button'), { ssr: false })
 
 const DashboardPage = () => {
   const { project } = useProject()
+  const [recommendations, setRecommendations] = useState<any[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  useEffect(() => {
+    const fetchRecommendations = async () => {
+      if (!project?.githubUrl) return
+      setLoading(true)
+      setError(null)
+      try {
+        const res = await fetch('/api/recommend-beginner-files', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ githubUrl: project.githubUrl }),
+        })
+        const data = await res.json()
+        if (data.recommendations) setRecommendations(data.recommendations)
+        else setError(data.error || 'No recommendations found')
+      } catch (e: any) {
+        setError(e.message || 'Failed to fetch recommendations')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchRecommendations()
+  }, [project?.githubUrl])
 
   return (
     <div className="space-y-8">
@@ -114,23 +141,41 @@ const DashboardPage = () => {
 
         {/* Right Column */}
         <div className="space-y-8">
-          {/* File Tree */}
+
+          {/* Beginner-Friendly Files Recommendation */}
           <Card className="border-0 shadow-lg hover:shadow-xl transition-all duration-300">
             <CardHeader className="pb-4">
               <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg">
-                  <FolderTree className="w-5 h-5 text-white" />
+                <div className="p-2 bg-gradient-to-br from-pink-500 to-pink-600 rounded-xl shadow-lg">
+                  <Sparkles className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <CardTitle className="text-lg">Project Structure</CardTitle>
+                  <CardTitle className="text-lg">Beginner-Friendly Files</CardTitle>
                   <CardDescription>
-                    Explore your codebase organization
+                    Good places to make your first contribution
                   </CardDescription>
                 </div>
               </div>
             </CardHeader>
             <CardContent>
-              <FileTree />
+              {loading && <div className="text-sm text-slate-500">Loading recommendations...</div>}
+              {error && <div className="text-sm text-red-500">{error}</div>}
+              {!loading && !error && recommendations.length === 0 && (
+                <div className="text-sm text-slate-500">No recommendations found.</div>
+              )}
+              <ul className="space-y-3">
+                {recommendations.slice(0, 10).map((rec, i) => (
+                  <li key={rec.path + i} className="flex flex-col gap-1 border-b pb-2 last:border-b-0">
+                    <div className="flex items-center gap-2">
+                      <Badge variant={rec.difficulty === 'easy' ? 'default' : rec.difficulty === 'medium' ? 'secondary' : 'destructive'}>
+                        {rec.difficulty.charAt(0).toUpperCase() + rec.difficulty.slice(1)}
+                      </Badge>
+                      <span className="font-mono text-xs break-all">{rec.path}</span>
+                    </div>
+                    <div className="text-xs text-slate-500">{rec.description}</div>
+                  </li>
+                ))}
+              </ul>
             </CardContent>
           </Card>
 
