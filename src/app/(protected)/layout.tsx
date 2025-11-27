@@ -4,9 +4,8 @@ import { UserButton, useUser } from '@clerk/nextjs'
 import React, { useState } from 'react'
 import AppSidebar from './app-sidebar'
 import { ThemeProvider } from '@/components/ui/theme-provider'
-import { Bell, Search } from 'lucide-react'
+import { Search } from 'lucide-react'
 import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
 
 type Props = {
   children: React.ReactNode
@@ -74,7 +73,12 @@ const SidebarLayout = ({ children }: Props) => {
                         afterSignOutUrl="/"
                         appearance={{
                           elements: {
-                            avatarBox: "w-10 h-10 rounded-xl border-2 border-slate-200/50 dark:border-slate-700/50 shadow-sm"
+                            // Minimalist changes:
+                            // 1. rounded-full: Cleaner, standard user avatar shape.
+                            // 2. border: reduced to 1px (was border-2).
+                            // 3. border-purple-500/30: Matches your "Invite" button outline.
+                            // 4. shadow-none: Removes visual noise.
+                            avatarBox: "w-10 h-10 rounded-full border border-purple-500/30 hover:border-purple-500/50 transition-all shadow-none"
                           }
                         }}
                       />

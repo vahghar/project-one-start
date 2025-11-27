@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import ArchiveButton from './archive-button'
 import TeamMembers from './team-members'
-import FileTree from './file-tree'
 import { Badge } from '@/components/ui/badge'
 
 const CommitLog = dynamic(() => import('./commit-log'), { ssr: false })
@@ -228,4 +227,4 @@ const DashboardPage = () => {
   )
 }
 
-export default DashboardPage
+export default DashboardPage 

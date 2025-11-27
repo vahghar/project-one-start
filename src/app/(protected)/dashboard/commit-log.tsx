@@ -8,7 +8,10 @@ import React from 'react'
 
 const CommitLog = () => {
     const { projectId, project } = useProject()
-    const { data: commits } = api.project.getCommits.useQuery({ projectId })
+    const { data: commits } = api.project.getCommits.useQuery(
+  { projectId },
+  { enabled: Boolean(project && projectId) }
+)
     return (
         <>
             <ul className='space-y-6'>

@@ -98,6 +98,10 @@ export const projectRouter = createTRPCRouter({
     getCommits: protectedProcedure.input(z.object({
         projectId: z.string()
     })).query(async ({ ctx, input }) => {
+        // Short-circuit if no projectId was provided
+        if (!input.projectId) {
+            return []
+        }
         // Check for existing commits first
         const existingCommits = await ctx.db.commit.count({
             where: { projectId: input.projectId }
@@ -113,6 +117,22 @@ export const projectRouter = createTRPCRouter({
 
             if (doubleCheck === 0) {
                 console.log('No commits found, starting processing...');
+                // Verify project exists, is not archived, and user is a member before polling
+                const project = await ctx.db.project.findFirst({
+                    where: {
+                        id: input.projectId,
+                        deletedAt: null,
+                        userToProjects: {
+                            some: { userId: ctx.user.userId || "" }
+                        }
+                    },
+                    select: { id: true }
+                })
+
+                if (!project) {
+                    console.log('Project not accessible or not found; skipping commit polling');
+                    return []
+                }
                 try {
                     await pollCommits(input.projectId);
                     console.log('Commit processing completed');
