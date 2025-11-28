@@ -131,10 +131,11 @@ export const indexGithubRepo = async (projectId: string, githubUrl: string, gith
                         projectId
                     }
                 });
+                const vectorString = `[${embedding.embedding.join(',')}]`;
 
                 await db.$executeRaw`
                 UPDATE "sourceCodeEmbedding"
-                SET "summaryEmbedding" = ${embedding.embedding}::vector
+                SET "summaryEmbedding" = ${vectorString}::vector
                 WHERE "id" = ${sourceCodeEmbedding.id}
                 `;
 
@@ -150,6 +151,8 @@ export const indexGithubRepo = async (projectId: string, githubUrl: string, gith
         throw error; // ← CRITICAL: Re-throw the error!
     }
 }
+
+/*
 
 const generateEmbeddings = async (docs: Document[]) => {
     console.log(`🔄 Starting embedding generation for ${docs.length} files`);
@@ -188,4 +191,57 @@ const generateEmbeddings = async (docs: Document[]) => {
             return null;
         }
     }));
+};
+
+*/
+
+const generateEmbeddings = async (docs: Document[]) => {
+    console.log(`🔄 Starting embedding generation for ${docs.length} files`);
+    
+    const results = [];
+
+    // FIX: Use a standard FOR loop instead of Promise.all
+    // This forces sequential processing (One by One)
+    for (const doc of docs) {
+        const startTime = Date.now();
+        try {
+            console.log(`📝 Processing ${doc.metadata.source}`);
+
+            const summary = await summarizeCode(doc);
+
+            // Handle failed summaries
+            if (!summary || summary.trim() === "") {
+                console.log(`⚠️ Skipping ${doc.metadata.source} - summary failed`);
+                continue; // Skip to next file
+            }
+
+            const embedding = await generateEmbedding(summary);
+
+            if (!embedding || embedding.length === 0) {
+                console.log(`⚠️ Skipping ${doc.metadata.source} - null embedding`);
+                continue;
+            }
+
+            const endTime = Date.now();
+            console.log(`✅ Processed ${doc.metadata.source} in ${endTime - startTime}ms`);
+
+            results.push({
+                summary,
+                embedding,
+                sourceCode: doc.pageContent, // No need for JSON parse/stringify here usually
+                fileName: doc.metadata.source
+            });
+
+            // CRITICAL FIX: Artificial Delay
+            // Wait 1 second between files to respect Rate Limits
+            await new Promise(resolve => setTimeout(resolve, 1000));
+
+        } catch (error) {
+            console.error(`❌ Failed to process ${doc.metadata.source}:`, error);
+            // We continue the loop so one error doesn't stop the whole index
+        }
+    }
+
+    console.log(`🎉 Finished. Generated ${results.length} / ${docs.length} embeddings.`);
+    return results;
 };
