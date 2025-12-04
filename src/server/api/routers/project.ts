@@ -1,4 +1,6 @@
 import { z } from "zod";
+//import { inngest } from "@/lib/inngest/client"; 
+import { inngest } from "@/inngest/client";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { pollCommits } from "@/lib/github";
 import { checkCredits, indexGithubRepo } from "@/lib/github-loader";
@@ -38,17 +40,29 @@ export const projectRouter = createTRPCRouter({
             }
         })
         try {
-            await indexGithubRepo(project.id, input.githubUrl, input.githubToken)
+            //await indexGithubRepo(project.id, input.githubUrl, input.githubToken)
+            await inngest.send({
+                name: "project/index-repo", // Matches the event name in functions.ts
+                data: {
+                    projectId: project.id,
+                    githubUrl: input.githubUrl,
+                    githubToken: input.githubToken
+                }
+            })
         } catch (error) {
             console.error('Error indexing GitHub repo:', error)
-            throw new Error(`Failed to index repository: ${error instanceof Error ? error.message : 'Unknown error'}`)
+            //throw new Error(`Failed to index repository: ${error instanceof Error ? error.message : 'Unknown error'}`)
         }
 
         try {
-            await pollCommits(project.id)
+            //await pollCommits(project.id)
+            await inngest.send({
+                name: "project/poll-commits",
+                data: { projectId: project.id }
+            })
         } catch (error) {
             console.error('Error polling commits:', error)
-            throw new Error(`Failed to process commits: ${error instanceof Error ? error.message : 'Unknown error'}`)
+            //throw new Error(`Failed to process commits: ${error instanceof Error ? error.message : 'Unknown error'}`)
         }
 
         await ctx.db.user.update({
@@ -76,8 +90,8 @@ export const projectRouter = createTRPCRouter({
             }*/
             where: {
                 userId: ctx.user.userId || "",
-                project:{
-                    deletedAt:null
+                project: {
+                    deletedAt: null
                 }
             },
             include: {
@@ -147,15 +161,15 @@ export const projectRouter = createTRPCRouter({
 
         return await ctx.db.commit.findMany({
             where: { projectId: input.projectId },
-            orderBy:{
-                commitDate:"desc"
+            orderBy: {
+                commitDate: "desc"
             },
-            take:50,
-            include:{
-                project:{
-                    select:{
-                        name:true,
-                        githubUrl:true
+            take: 50,
+            include: {
+                project: {
+                    select: {
+                        name: true,
+                        githubUrl: true
                     }
                 }
             }

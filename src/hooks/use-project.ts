@@ -2,7 +2,7 @@ import { api } from '@/trpc/react'
 import {useLocalStorage} from 'usehooks-ts'
 
 const useProject = () => {
-    const {data: userToProjects} = api.project.getProjects.useQuery()
+    const {data: userToProjects, isLoading: isLoadingProjects} = api.project.getProjects.useQuery()
     const [projectId,setProjectId] = useLocalStorage('user_to_projectId','')
 
     // Transform the data to match the expected format
@@ -13,7 +13,8 @@ const useProject = () => {
         projects,
         project,
         projectId,
-        setProjectId
+        setProjectId,
+        isLoadingProjects
     }
 }
 

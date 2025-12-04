@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button'
 import ArchiveButton from './archive-button'
 import TeamMembers from './team-members'
 import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
 
 const CommitLog = dynamic(() => import('./commit-log'), { ssr: false })
 const MeetingCard = dynamic(() => import('./meeting-card'), { ssr: false })
@@ -157,7 +158,18 @@ const DashboardPage = () => {
               </div>
             </CardHeader>
             <CardContent>
-              {loading && <div className="text-sm text-slate-500">Loading recommendations...</div>}
+              {loading && (<ul className="space-y-3">
+                    {Array.from({ length: 5 }).map((_, index) => (
+                        <li key={index} className="flex flex-col gap-1 border-b pb-2 last:border-b-0">
+                            <div className="flex items-center gap-2">
+                                <Skeleton className="h-4 w-12 rounded-full" /> 
+                                <Skeleton className="h-4 w-2/3" />
+                            </div>
+                            <Skeleton className="h-3 w-5/6" />
+                            <Skeleton className="h-3 w-3/4" />
+                        </li>
+                    ))}
+                </ul>)}
               {error && <div className="text-sm text-red-500">{error}</div>}
               {!loading && !error && recommendations.length === 0 && (
                 <div className="text-sm text-slate-500">No recommendations found.</div>
